@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="سينمانا ماكس">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#000000">
+<title>سينمانا ماكس</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js"></script>
+<style>
+:root{--bg:#000;--card:#0e1417;--card2:#151d21;--line:#ffffff1f;--txt:#eaf7fa;--mut:#8aa7ad;--neon:#00e5ff;--grad:linear-gradient(90deg,#00f0ff,#3d8bff);--gold:#ffd54a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;overflow-x:hidden;background:var(--bg);color:var(--txt);font-family:system-ui,"Segoe UI",Tahoma,Arial,sans-serif}
+body{min-height:100vh;background:radial-gradient(600px 400px at 95% 0,#00e5ff22,transparent),radial-gradient(500px 400px at 0 70%,#7c4dff1a,transparent),#000;background-attachment:fixed;padding-bottom:90px}
+button{font:inherit;color:inherit;cursor:pointer}
+.wrap{max-width:1280px;margin:auto;padding:0 14px}
+header{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:#000000b3;border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:10px;padding:10px 0}
+.logo{font-size:21px;font-weight:800;color:var(--neon);white-space:nowrap}
+.search{flex:1;min-width:0;display:flex;align-items:center;gap:8px;background:#ffffff14;border:1px solid var(--line);border-radius:22px;padding:0 14px;height:42px}
+.search input{flex:1;width:100%;background:none;border:0;outline:0;color:var(--txt);font:inherit;min-width:0}
+.tabs{display:flex;gap:6px;padding-bottom:10px}
+.tab{flex:1;padding:9px 6px;border-radius:16px;border:1px solid var(--line);background:#ffffff0d;font-weight:700;color:var(--mut)}
+.tab.on{background:var(--grad);color:#03121a;border-color:transparent}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:12px 0;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:8px 18px;border-radius:20px;border:1px solid var(--line);background:#ffffff10;font-weight:700}
+.chip.on{background:var(--grad);color:#03121a;border-color:transparent}
+.hero{position:relative;height:min(62vh,520px);border-radius:28px;overflow:hidden;border:1px solid var(--line);margin-top:6px}
+.slide{position:absolute;inset:0;opacity:0;transition:opacity .8s;background-size:cover;background-position:center;display:flex;align-items:flex-end;pointer-events:none}
+.slide.on{opacity:1;pointer-events:auto}
+.slide::before{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#000 5%,#000000a0 45%,transparent)}
+.slide .in{position:relative;padding:22px;max-width:640px}
+.slide h2{margin:6px 0;font-size:clamp(24px,4vw,40px)}
+.slide p{margin:6px 0 14px;color:#bfd6db;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;line-height:1.7}
+.meta{color:var(--mut);font-size:13px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.rate{background:#ffd54a2b;border:1px solid #ffd54a66;color:var(--gold);border-radius:10px;padding:1px 9px;font-weight:800;font-size:12.5px}
+.btn{border:0;border-radius:16px;padding:12px 22px;font-weight:800;background:var(--grad);color:#03121a}
+.btn.g{background:linear-gradient(#ffffff33,#ffffff14);color:var(--txt);border:1px solid #ffffff40}
+.dots{position:absolute;top:14px;left:50%;transform:translateX(-50%);display:flex;gap:5px;background:#0009;padding:6px 9px;border-radius:12px}
+.dots i{width:6px;height:6px;border-radius:4px;background:#fff6;transition:.3s}.dots i.on{width:18px;background:var(--neon)}
+h3.sec{display:flex;align-items:center;gap:9px;font-size:18px;margin:26px 0 10px}
+h3.sec::before{content:"";width:4px;height:20px;border-radius:3px;background:linear-gradient(#00f0ff,#7c4dff)}
+.row{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x proximity;scrollbar-width:none}.row::-webkit-scrollbar{display:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:14px;margin-top:6px}
+.card{position:relative;cursor:pointer;scroll-snap-align:start}
+.row .card{flex:none;width:clamp(116px,22vw,165px)}
+.poster{position:relative;aspect-ratio:2/3;border-radius:18px;overflow:hidden;background:var(--card2) center/cover;border:1px solid var(--line)}
+.poster::after{content:"";position:absolute;inset:auto 0 0;height:45%;background:linear-gradient(0deg,#000d,transparent)}
+.card:hover .poster{border-color:var(--neon)}
+.badge{position:absolute;z-index:2;background:#000a;border:1px solid #ffffff33;border-radius:10px;padding:1px 8px;font-size:11px;font-weight:700}
+.b-r{top:7px;right:7px;color:var(--gold)}.b-v{top:7px;left:7px}.b-t{bottom:7px;left:7px}
+.rank{position:absolute;z-index:2;bottom:2px;right:8px;font-size:46px;font-weight:900;text-shadow:0 0 14px var(--neon)}
+.name{margin-top:7px;font-size:13px;line-height:1.4;height:36px;overflow:hidden}
+.empty{text-align:center;color:var(--mut);padding:60px 0}
+nav.bottom{position:fixed;z-index:30;bottom:max(10px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(520px,calc(100% - 24px));display:none;background:#0b1114e6;backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:30px;padding:6px}
+nav.bottom button{flex:1;border:0;background:none;padding:9px 0;border-radius:24px;color:var(--mut);font-size:12px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:2px}
+nav.bottom button b{font-size:19px}nav.bottom button.on{background:#00e5ff2e;color:var(--neon)}
+@media(max-width:700px){nav.bottom{display:flex}.tabs{display:none}}
+.ov{position:fixed;inset:0;z-index:50;background:#000;overflow:auto;display:none}
+.ov.show{display:block}
+.det-bg{position:absolute;inset:0 0 auto;height:60vh;background-size:cover;background-position:center;filter:brightness(.55)}
+.det-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#000,transparent 80%)}
+.det{position:relative;max-width:980px;margin:auto;padding:70px 16px 40px}
+.x{position:fixed;top:12px;right:12px;z-index:60;width:44px;height:44px;border-radius:50%;border:1px solid #ffffff55;background:#0008;font-size:20px}
+.det .top{display:flex;gap:18px;flex-wrap:wrap}
+.det .pp{width:150px;aspect-ratio:2/3;border-radius:18px;background:center/cover;border:1px solid var(--line)}
+.det h1{margin:0 0 8px;font-size:clamp(24px,4vw,36px)}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.tags span{background:#ffffff14;border:1px solid var(--line);border-radius:14px;padding:3px 12px;font-size:12.5px}
+.cast{display:flex;gap:12px;overflow-x:auto;padding:6px 0}.cast div{flex:none;width:76px;text-align:center;font-size:11.5px;color:var(--mut)}
+.cast i{display:block;width:64px;height:64px;border-radius:50%;margin:0 auto 5px;background:var(--card2) center/cover;border:1px solid var(--line)}
+.ep{display:flex;gap:12px;align-items:center;padding:9px;border-radius:16px;border:1px solid var(--line);background:#ffffff0a;margin:8px 0;cursor:pointer}
+.ep:hover{border-color:var(--neon)}.ep.na{opacity:.5}
+.ep .st{width:128px;aspect-ratio:16/9;border-radius:10px;background:var(--card2) center/cover;flex:none;position:relative}
+.ep .pl{position:absolute;inset:0;display:grid;place-items:center;font-size:22px;text-shadow:0 0 8px #000}
+.ep .bar2{position:absolute;bottom:0;left:0;height:3px;background:var(--neon)}
+.player{background:#000;z-index:70}
+.player video{width:100%;height:100%;background:#000}
+.pbar{position:fixed;top:0;left:0;right:0;z-index:80;display:flex;gap:8px;align-items:center;padding:10px 12px;background:linear-gradient(#000c,transparent);transition:opacity .3s}
+.pbar.bot{top:auto;bottom:0;background:linear-gradient(transparent,#000c);justify-content:center;flex-wrap:wrap;padding-bottom:calc(10px + env(safe-area-inset-bottom))}
+.pbar.hide{opacity:0;pointer-events:none}
+.pill{border:1px solid #ffffff55;background:#ffffff26;border-radius:18px;padding:7px 14px;font-weight:700;font-size:13px}
+.ptitle{flex:1;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.toast{position:fixed;z-index:99;left:50%;top:50%;transform:translate(-50%,-50%);background:#000b;border:1px solid var(--line);padding:10px 22px;border-radius:22px;font-weight:800;font-size:18px;display:none}
+.menu{position:fixed;z-index:90;inset:auto 0 0;background:#0e1417f2;border-top:1px solid var(--line);border-radius:22px 22px 0 0;max-height:60vh;overflow:auto;padding:10px}
+.menu button{display:flex;width:100%;gap:10px;align-items:center;padding:12px;border:0;background:none;border-radius:12px;text-align:right}
+.menu button.on{background:#00e5ff2e;color:var(--neon)}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="bar"><div class="logo" id="logo">سينمانا ماكس</div>
+    <label class="search">🔍<input id="q" placeholder="ابحث عن فيلم أو مسلسل…" autocomplete="off"></label></div>
+  <div class="tabs" id="tabs"></div>
+</div></header>
+<div class="wrap" id="app"><p class="empty">جارٍ التحميل…</p></div>
+<nav class="bottom" id="bnav"></nav>
+<div class="ov" id="detail"></div>
+<div class="ov player" id="player"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+/* ═══════════ الإعدادات — عدّل هنا فقط ═══════════ */
+const CONFIG = {
+  DATA_URL: 'https://raw.githubusercontent.com/Younes7o/cinemana-data/main/data.json', // نفس ملف التطبيق
+  KEY: 'CMX-change-this-secret-2026',   // نفس عبارة التشفير في لوحة التحكم والتطبيق (Secrets.java)
+  API_URL: 'https://plikunr.infinityfreeapp.com/cmxapi.php'                           // اختياري: رابط api.php لعدّاد المشاهدات (نفس إعداد التطبيق)
+};
+
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+const S = { data: null, tab: 'home', cat: null, q: '', views: {}, favs: store.get('cmx_favs', []), prog: store.get('cmx_prog', {}) };
+
+/* ═══════════ فك تشفير الروابط AES-256-GCM ═══════════ */
+let keyP;
+const cryptoKey = () => keyP || (keyP = crypto.subtle.digest('SHA-256', new TextEncoder().encode(CONFIG.KEY)).then(h => crypto.subtle.importKey('raw', h, 'AES-GCM', false, ['decrypt'])));
+async function reveal(u) {
+  if (!u || !u.startsWith('enc:')) return u || '';
+  let b = u.slice(4).replace(/-/g, '+').replace(/_/g, '/'); while (b.length % 4) b += '=';
+  const raw = Uint8Array.from(atob(b), c => c.charCodeAt(0));
+  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: raw.slice(0, 12) }, await cryptoKey(), raw.slice(12));
+  return new TextDecoder().decode(pt);
+}
+
+/* ═══════════ البيانات ═══════════ */
+async function loadData() {
+  let j;
+  try { j = await (await fetch(CONFIG.DATA_URL + '?t=' + Date.now(), { cache: 'no-store' })).json(); }
+  catch (e) { try { j = await (await fetch('data.json?t=' + Date.now(), { cache: 'no-store' })).json(); } catch (e2) { throw new Error('تعذّر تحميل البيانات'); } }
+  const series = (j.series || []).filter(s => !s.h).map(s => ({
+    id: s.id, t: s.t || '', p: s.p || '', b: s.b || '', o: s.o || '', r: parseFloat(s.r) || 0, y: s.y || '', g: s.g || [],
+    movie: s.k === 'movie', c: s.c, f: !!s.f, cast: s.cast || [],
+    eps: (s.eps || []).filter(e => !e.h).map(e => ({ id: e.id, s: e.s || 1, n: e.n || 1, t: e.t || '', st: e.st || '', raw: e.e || e.u || '', sub: e.sub || [] }))
+      .sort((a, b) => a.s - b.s || a.n - b.n)
+  })).filter(s => s.eps.length).sort((a, b) => b.id - a.id);
+  S.data = { settings: j.settings || {}, cats: j.categories || [], series };
+  document.title = S.data.settings.name || 'سينمانا ماكس';
+  $('#logo').textContent = S.data.settings.name || 'سينمانا ماكس';
+}
+async function loadViews() {
+  if (!CONFIG.API_URL) return;
+  try { const j = await (await fetch(CONFIG.API_URL + '?i=1&a=public')).json(); S.views = j.views || {}; render(); } catch (e) {}
+  try { let d = store.get('cmx_did', ''); if (!d) { d = crypto.randomUUID(); store.set('cmx_did', d); } S.did = d;
+    const c = (navigator.language.split('-')[1] || 'XX').toUpperCase();
+    fetch(CONFIG.API_URL + '?i=1&a=hit&d=' + d + '&c=' + c + '&v=web'); } catch (e) {}
+}
+const compact = n => n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(1) + 'K' : String(n);
+const byId = id => S.data.series.find(s => s.id === id);
+
+/* ═══════════ الواجهة ═══════════ */
+const TABS = [['home', 'الرئيسية', '🏠'], ['movies', 'أفلام', '🎬'], ['series', 'مسلسلات', '📺'], ['favs', 'المفضلة', '❤']];
+function renderTabs() {
+  $('#tabs').innerHTML = TABS.map(([k, l]) => `<button class="tab ${S.tab === k ? 'on' : ''}" data-tab="${k}">${l}</button>`).join('');
+  $('#bnav').innerHTML = TABS.map(([k, l, i]) => `<button class="${S.tab === k ? 'on' : ''}" data-tab="${k}"><b>${i}</b>${l}</button>`).join('');
+}
+function card(s, rank) {
+  const v = S.views[s.id];
+  return `<div class="card" data-open="${s.id}"><div class="poster" style="background-image:url('${esc(s.p || s.b)}')">
+    ${s.r > 0 ? `<span class="badge b-r">★ ${s.r.toFixed(1)}</span>` : ''}${v ? `<span class="badge b-v">👁 ${compact(v)}</span>` : ''}
+    <span class="badge b-t">${s.movie ? 'فيلم' : s.eps.length + ' حلقة'}</span>${rank ? `<span class="rank">${rank}</span>` : ''}</div>
+    <div class="name">${esc(s.t)}</div></div>`;
+}
+const row = (title, list, ranked) => list.length ? `<h3 class="sec">${title}</h3><div class="row">${list.map((s, i) => card(s, ranked ? i + 1 : 0)).join('')}</div>` : '';
+
+let heroList = [], heroI = 0, heroT;
+function heroHtml() {
+  const L = S.data.series; heroList = [];
+  L.filter(s => s.f).slice(0, 2).forEach(s => heroList.push(s));
+  let m = 0, t = 0; for (const s of L) { if (heroList.includes(s) || !(s.b || s.p)) continue; if (s.movie ? m < 2 : t < 2) { heroList.push(s); s.movie ? m++ : t++; } if (heroList.length >= 6) break; }
+  if (!heroList.length) return '';
+  heroI = 0;
+  return `<div class="hero" id="hero">${heroList.map((s, i) => `<div class="slide ${i ? '' : 'on'}" style="background-image:url('${esc(s.b || s.p)}')"><div class="in">
+    <div class="meta">${s.r > 0 ? `<span class="rate">★ ${s.r.toFixed(1)}</span>` : ''}<span>${s.movie ? 'فيلم' : 'مسلسل'}</span>${s.y ? `<span>${esc(s.y)}</span>` : ''}<span>${esc((s.g || []).slice(0, 2).join(' · '))}</span>${S.views[s.id] ? `<span>👁 ${compact(S.views[s.id])}</span>` : ''}</div>
+    <h2>${esc(s.t)}</h2><p>${esc(s.o)}</p>
+    <button class="btn" data-play="${s.id}">▶ شاهد الآن</button> <button class="btn g" data-open="${s.id}">التفاصيل</button></div></div>`).join('')}
+    ${heroList.length > 1 ? `<div class="dots">${heroList.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>` : ''}</div>`;
+}
+function startHero() {
+  clearInterval(heroT); const h = $('#hero'); if (!h || heroList.length < 2) return;
+  heroT = setInterval(() => {
+    const sl = h.querySelectorAll('.slide'), ds = h.querySelectorAll('.dots i');
+    sl[heroI].classList.remove('on'); ds[heroI].classList.remove('on');
+    heroI = (heroI + 1) % sl.length; sl[heroI].classList.add('on'); ds[heroI].classList.add('on');
+  }, 4500);
+}
+
+function render() {
+  if (!S.data) return;
+  renderTabs();
+  const D = S.data, q = S.q.trim().toLowerCase();
+  let list = D.series.filter(s => S.tab === 'movies' ? s.movie : S.tab === 'series' ? !s.movie : S.tab === 'favs' ? S.favs.includes(s.id) : true);
+  if (S.cat != null) list = list.filter(s => s.c === S.cat);
+  if (q) list = list.filter(s => (s.t + ' ' + (s.ot || '')).toLowerCase().includes(q));
+  const chips = S.tab === 'favs' ? '' : `<div class="chips"><button class="chip ${S.cat == null ? 'on' : ''}" data-cat="">الكل</button>${D.cats.map(c => `<button class="chip ${S.cat === c.id ? 'on' : ''}" data-cat="${c.id}">${esc(c.name)}</button>`).join('')}</div>`;
+  let html = chips;
+  if (S.tab === 'home' && S.cat == null && !q) {
+    const all = D.series;
+    const popular = all.filter(s => S.views[s.id] > 0).sort((a, b) => S.views[b.id] - S.views[a.id]).slice(0, 12);
+    const top = all.filter(s => s.r > 0).sort((a, b) => b.r - a.r).slice(0, 10);
+    const cont = Object.keys(S.prog).map(Number).map(byId).filter(Boolean).slice(0, 8);
+    html += heroHtml() + row('تابع المشاهدة', cont) + row('أُضيف حديثاً', all.slice(0, 14)) + (popular.length > 1 ? row('🔥 الأكثر مشاهدة', popular) : '') +
+      (top.length > 2 ? row('الأعلى تقييماً — أفضل 10', top, true) : '') +
+      row('مسلسلات', all.filter(s => !s.movie).slice(0, 14)) + row('أفلام', all.filter(s => s.movie).slice(0, 14)) +
+      D.cats.map(c => row(esc(c.name), all.filter(s => s.c === c.id))).join('');
+  } else html += list.length ? `<div class="grid">${list.map(s => card(s)).join('')}</div>` : `<p class="empty">${S.tab === 'favs' ? 'لم تضف شيئاً للمفضلة بعد' : 'لا توجد نتائج'}</p>`;
+  $('#app').innerHTML = html; startHero();
+}
+
+/* ═══════════ التفاصيل ═══════════ */
+let curSeries, curSeason = null;
+function openDetail(id) {
+  const s = byId(id); if (!s) return; curSeries = s;
+  const seasons = [...new Set(s.eps.map(e => e.s))]; curSeason = seasons[0];
+  const fav = S.favs.includes(s.id), v = S.views[s.id];
+  $('#detail').innerHTML = `<button class="x" data-close="detail">✕</button><div class="det-bg" style="background-image:url('${esc(s.b || s.p)}')"></div>
+  <div class="det"><div class="top"><div class="pp" style="background-image:url('${esc(s.p || s.b)}')"></div><div style="flex:1;min-width:220px">
+    <h1>${esc(s.t)}</h1><div class="meta">${s.r > 0 ? `<span class="rate">★ ${s.r.toFixed(1)}</span>` : ''}<span>${s.movie ? 'فيلم' : s.eps.length + ' حلقة'}</span>${s.y ? `<span>${esc(s.y)}</span>` : ''}${v ? `<span>👁 ${compact(v)} مشاهدة</span>` : ''}</div>
+    <div class="tags">${(s.g || []).map(g => `<span>${esc(g)}</span>`).join('')}</div>
+    <button class="btn" data-play="${s.id}">▶ ${s.movie ? 'شاهد الفيلم' : (S.prog[s.id] ? 'تابع المشاهدة' : 'شاهد الآن')}</button>
+    <button class="btn g" data-fav="${s.id}">${fav ? '❤ في المفضلة' : '♡ أضف للمفضلة'}</button></div></div>
+  ${s.o ? `<h3 class="sec">القصة</h3><p style="line-height:1.9;color:#cfe3e7">${esc(s.o)}</p>` : ''}
+  ${s.cast.length ? `<h3 class="sec">طاقم التمثيل</h3><div class="cast">${s.cast.map(c => `<div><i style="background-image:url('${esc(c.profile)}')"></i>${esc(c.name)}</div>`).join('')}</div>` : ''}
+  ${s.movie ? '' : `<h3 class="sec">الحلقات</h3>${seasons.length > 1 ? `<div class="chips" id="seasons">${seasons.map(n => `<button class="chip ${n === curSeason ? 'on' : ''}" data-season="${n}">الموسم ${n}</button>`).join('')}</div>` : ''}<div id="eplist"></div>`}</div>`;
+  $('#detail').classList.add('show'); $('#detail').scrollTop = 0; if (!s.movie) epList();
+}
+function epList() {
+  const s = curSeries, p = S.prog[s.id] || {};
+  $('#eplist').innerHTML = s.eps.filter(e => e.s === curSeason).map(e => {
+    const pct = p.ep === e.id && p.dur ? Math.min(100, Math.round(p.pos * 100 / p.dur)) : 0;
+    return `<div class="ep ${e.raw ? '' : 'na'}" data-ep="${e.id}"><div class="st" style="background-image:url('${esc(e.st || s.b || s.p)}')"><div class="pl">${e.raw ? '▶' : ''}</div>${pct ? `<div class="bar2" style="width:${pct}%"></div>` : ''}</div>
+      <div><b>الحلقة ${e.n}</b><div class="meta">${esc(e.t)}${e.raw ? '' : ' • قريباً'}</div></div></div>`;
+  }).join('');
+}
+
+/* ═══════════ المشغّل ═══════════ */
+const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2, 2.5, 3];
+let hls, vid, cur = { s: null, i: 0 }, hideT, speedI = 2, tmr;
+const toast = m => { const t = $('#toast'); t.textContent = m; t.style.display = 'block'; clearTimeout(tmr); tmr = setTimeout(() => t.style.display = 'none', 1500); };
+async function play(sid, epId) {
+  const s = byId(sid); if (!s) return;
+  const playable = s.eps.filter(e => e.raw);
+  if (!playable.length) return toast('لا يوجد رابط تشغيل بعد');
+  let e = epId ? s.eps.find(x => x.id === epId) : null;
+  if (!e) { const p = S.prog[s.id]; e = (p && s.eps.find(x => x.id === p.ep && x.raw)) || playable[0]; }
+  if (!e.raw) return toast('الحلقة غير متوفرة بعد');
+  cur = { s, e };
+  let url; try { url = await reveal(e.raw); } catch (err) { return toast('تعذّر فك تشفير الرابط (تحقق من KEY)'); }
+  if (CONFIG.API_URL) fetch(CONFIG.API_URL + '?i=1&a=view&d=' + (S.did || 'web-' + (store.get('cmx_did', 'x'))) + '&s=' + s.id);
+  const P = $('#player');
+  P.innerHTML = `<video id="v" playsinline autoplay></video>
+  <div class="pbar" id="pt"><button class="pill" id="pback">→ رجوع</button><div class="ptitle">${esc(s.t)}${s.movie ? '' : ' — الحلقة ' + e.n}</div></div>
+  <div class="pbar bot" id="pb"><button class="pill" id="pprev">⏮</button><button class="pill" id="prew">⏪ 10</button><button class="pill" id="ppl">⏯</button><button class="pill" id="pfw">10 ⏩</button><button class="pill" id="pnext">⏭</button>
+    <button class="pill" id="pspd">⚡ 1×</button><button class="pill" id="pq">الجودة</button><button class="pill" id="ppip">▣ نافذة</button><button class="pill" id="pfs">⛶</button></div>`;
+  P.classList.add('show'); vid = $('#v'); vid.controls = true;
+  if (hls) { hls.destroy(); hls = null; }
+  const clean = url.split('?')[0].toLowerCase();
+  if (clean.endsWith('.m3u8') && window.Hls && Hls.isSupported()) {
+    hls = new Hls({ enableWorker: true }); hls.loadSource(url); hls.attachMedia(vid);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => { const n = hls.levels.length; $('#pq').textContent = n > 1 ? 'الجودة · ' + n : 'الجودة'; });
+    hls.on(Hls.Events.ERROR, (_, d) => { if (d.fatal) toast('تعذّر تشغيل الفيديو'); });
+  } else vid.src = url;
+  vid.playbackRate = SPEEDS[speedI];
+  const p0 = S.prog[s.id]; if (p0 && p0.ep === e.id && p0.pos > 5) vid.addEventListener('loadedmetadata', () => { vid.currentTime = p0.pos; }, { once: true });
+  vid.addEventListener('timeupdate', saveProg); vid.addEventListener('ended', () => step(1));
+  const show = () => { $('#pt').classList.remove('hide'); $('#pb').classList.remove('hide'); clearTimeout(hideT); hideT = setTimeout(() => { if (!vid.paused) { $('#pt').classList.add('hide'); $('#pb').classList.add('hide'); } }, 3500); };
+  P.onmousemove = P.ontouchstart = show; show();
+  $('#pback').onclick = closePlayer; $('#ppl').onclick = () => vid.paused ? vid.play() : vid.pause();
+  $('#prew').onclick = () => vid.currentTime -= 10; $('#pfw').onclick = () => vid.currentTime += 10;
+  $('#pprev').onclick = () => step(-1); $('#pnext').onclick = () => step(1);
+  $('#pspd').onclick = () => { speedI = (speedI + 1) % SPEEDS.length; vid.playbackRate = SPEEDS[speedI]; $('#pspd').textContent = '⚡ ' + SPEEDS[speedI] + '×'; toast(SPEEDS[speedI] + '×'); };
+  $('#pspd').textContent = '⚡ ' + SPEEDS[speedI] + '×';
+  $('#ppip').onclick = () => { try { document.pictureInPictureElement ? document.exitPictureInPicture() : vid.requestPictureInPicture(); } catch (e) { toast('غير مدعوم'); } };
+  $('#pfs').onclick = () => document.fullscreenElement ? document.exitFullscreen() : P.requestFullscreen && P.requestFullscreen();
+  $('#pq').onclick = () => {
+    if (!hls || hls.levels.length < 2) return toast(hls ? 'جودة واحدة فقط' : 'لا تتوفر معلومات الجودة');
+    const m = document.createElement('div'); m.className = 'menu';
+    m.innerHTML = `<button data-lv="-1" class="${hls.currentLevel === -1 ? 'on' : ''}">تلقائي</button>` + hls.levels.map((l, i) => ({ l, i })).sort((a, b) => b.l.height - a.l.height).map(({ l, i }) => `<button data-lv="${i}" class="${hls.currentLevel === i ? 'on' : ''}">${l.height}p</button>`).join('');
+    m.onclick = ev => { const b = ev.target.closest('[data-lv]'); if (b) hls.currentLevel = +b.dataset.lv; m.remove(); };
+    P.appendChild(m);
+  };
+}
+function step(d) {
+  const s = cur.s, L = s.eps.filter(e => e.raw), i = L.findIndex(e => e.id === cur.e.id) + d;
+  if (i >= 0 && i < L.length) play(s.id, L[i].id); else if (d > 0) closePlayer();
+}
+function saveProg() {
+  if (!vid || !cur.s || !isFinite(vid.duration)) return;
+  S.prog[cur.s.id] = { ep: cur.e.id, pos: vid.currentTime, dur: vid.duration }; store.set('cmx_prog', S.prog);
+}
+function closePlayer() {
+  saveProg(); if (hls) { hls.destroy(); hls = null; } if (vid) { vid.pause(); vid.removeAttribute('src'); vid.load(); }
+  $('#player').classList.remove('show'); $('#player').innerHTML = ''; if (document.fullscreenElement) document.exitFullscreen();
+  if ($('#detail').classList.contains('show') && curSeries && !curSeries.movie) epList(); else render();
+}
+
+/* ═══════════ الأحداث ═══════════ */
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-tab],[data-cat],[data-open],[data-play],[data-close],[data-fav],[data-season],[data-ep]'); if (!t) return;
+  const d = t.dataset;
+  if (d.tab) { S.tab = d.tab; S.cat = null; render(); scrollTo(0, 0); }
+  else if (d.cat !== undefined && t.classList.contains('chip') && !t.closest('#seasons')) { S.cat = d.cat === '' ? null : +d.cat; render(); }
+  else if (d.season) { curSeason = +d.season; document.querySelectorAll('#seasons .chip').forEach(c => c.classList.toggle('on', c.dataset.season === d.season)); epList(); }
+  else if (d.open) openDetail(+d.open);
+  else if (d.play) play(+d.play);
+  else if (d.ep) play(curSeries.id, +d.ep);
+  else if (d.close) $('#' + d.close).classList.remove('show');
+  else if (d.fav) { const id = +d.fav, i = S.favs.indexOf(id); i < 0 ? S.favs.push(id) : S.favs.splice(i, 1); store.set('cmx_favs', S.favs); t.textContent = i < 0 ? '❤ في المفضلة' : '♡ أضف للمفضلة'; render(); }
+});
+let qt; $('#q').addEventListener('input', e => { clearTimeout(qt); qt = setTimeout(() => { S.q = e.target.value; render(); }, 200); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { if ($('#player').classList.contains('show')) closePlayer(); else $('#detail').classList.remove('show'); } });
+
+loadData().then(() => { render(); loadViews(); }).catch(err => { $('#app').innerHTML = `<p class="empty">${esc(err.message)}<br><br><button class="btn" onclick="location.reload()">إعادة المحاولة</button></p>`; });
+</script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(){});}</script>
+</body>
+</html>
