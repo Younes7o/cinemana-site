@@ -11,6 +11,13 @@
 <meta name="apple-mobile-web-app-title" content="سينمانا ماكس">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#000000">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src * data: blob:; media-src * data: blob:; connect-src *; worker-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<script>
+/* حماية: منع تضمين الموقع داخل إطار موقع آخر */
+if (window.top !== window.self) { try { window.top.location = window.self.location; } catch (e) {} document.documentElement.style.display = 'none'; }
+</script>
 <title>سينمانا ماكس</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js"></script>
 <style>
@@ -33,6 +40,19 @@ header{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:#0
 .chips::-webkit-scrollbar{display:none}
 .chip{flex:none;padding:8px 18px;border-radius:20px;border:1px solid var(--line);background:#ffffff10;font-weight:700}
 .chip.on{background:var(--grad);color:#03121a;border-color:transparent}
+.gtabs{display:flex;gap:4px;overflow-x:auto;padding:5px;margin:10px 0 6px;border-radius:20px;background:#ffffff10;border:1px solid var(--line);scrollbar-width:none}
+.gtabs::-webkit-scrollbar{display:none}
+.gtab{flex:none;padding:10px 20px;border-radius:15px;border:0;background:none;color:var(--mut);font-weight:800;font-size:15px}
+.gtab.on{background:var(--neon);color:#03121a}
+.flt{display:flex;gap:8px;overflow-x:auto;padding:6px 0 12px;scrollbar-width:none}
+.flt::-webkit-scrollbar{display:none}
+.flt select{flex:none;appearance:none;-webkit-appearance:none;max-width:190px;height:38px;padding:0 14px 0 30px;border-radius:16px;border:1px solid var(--line);background:#ffffff10 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'><path fill='%238aa7ad' d='M7.4 8.6 12 13.2l4.6-4.6L18 10l-6 6-6-6z'/></svg>") no-repeat 10px center;color:var(--txt);font:inherit;font-weight:700;font-size:13px}
+.flt select.on{border-color:var(--neon);color:var(--neon)}
+.flt select option{background:#111;color:#fff}
+body{-webkit-touch-callout:none}
+.card,.poster,img{-webkit-user-select:none;user-select:none;-webkit-user-drag:none}
+input,textarea{-webkit-user-select:text;user-select:text}
+#devwarn{position:fixed;inset:0;z-index:9999;background:#000;color:#fff;display:none;align-items:center;justify-content:center;text-align:center;padding:30px;font-weight:700}
 .hero{position:relative;height:min(62vh,520px);border-radius:28px;overflow:hidden;border:1px solid var(--line);margin-top:6px}
 .slide{position:absolute;inset:0;opacity:0;transition:opacity .8s;background-size:cover;background-position:center;display:flex;align-items:flex-end;pointer-events:none}
 .slide.on{opacity:1;pointer-events:auto}
@@ -168,7 +188,7 @@ const ICONS = {
 const ic = n => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[n]}"/></svg>`;
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const store = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
-const S = { data: null, tab: 'home', cat: null, q: '', views: {}, favs: store.get('cmx_favs', []), prog: store.get('cmx_prog', {}) };
+const S = { data: null, tab: 'home', cat: null, grp: null, fg: null, fy: null, fs: 0, q: '', views: {}, favs: store.get('cmx_favs', []), prog: store.get('cmx_prog', {}) };
 
 /* ═══════════ فك تشفير الروابط AES-256-GCM ═══════════ */
 let keyP;
@@ -181,17 +201,59 @@ async function reveal(u) {
   return new TextDecoder().decode(pt);
 }
 
+/* ═══════════ التقسيم التلقائي (نفس منطق التطبيق) ═══════════ */
+const MOVIE_GROUPS = [['hollywood','هوليوود'],['bollywood','بوليود'],['arab','عربي'],['anim','أنميشن'],['turkish','تركي'],['korean','كوري'],['japanese','ياباني'],['chinese','صيني'],['italian','إيطالي'],['brazil','برازيلي'],['thai','تايلاندي'],['phil','فلبيني'],['french','فرنسي'],['spanish','إسباني'],['other','أخرى']];
+const SERIES_GROUPS = [['arab','عربية'],['turkish','تركية'],['foreign','أجنبية'],['asian','آسيوية'],['anim','أنمي وكرتون'],['other','أخرى']];
+function guessLang(t) {
+  let han = false;
+  for (const ch of String(t || '')) {
+    const c = ch.codePointAt(0);
+    if ((c >= 0xAC00 && c <= 0xD7AF) || (c >= 0x1100 && c <= 0x11FF)) return 'ko';
+    if (c >= 0x3040 && c <= 0x30FF) return 'ja';
+    if (c >= 0x4E00 && c <= 0x9FFF) han = true;
+    else if (c >= 0x0E00 && c <= 0x0E7F) return 'th';
+    else if (c >= 0x0900 && c <= 0x0DFF) return 'hi';
+    else if (c >= 0x0600 && c <= 0x06FF) return 'ar';
+    else if (c >= 0x0400 && c <= 0x04FF) return 'ru';
+    else if ('ğıİşĞŞ'.includes(ch)) return 'tr';
+  }
+  return han ? 'zh' : '';
+}
+function classify(s) {
+  let lang = s.lg, cn = s.cn; if (!lang && !cn) lang = guessLang(s.ot || s.t);
+  const one = (v, ...xs) => xs.includes(v);
+  if ((s.g || []).some(g => /رسوم|أنيمي|انيمي|أنمي|انمي|كرتون|أنيميشن|انيميشن|animation|anime/i.test(g))) return 'anim';
+  const indian = cn === 'IN' || one(lang, 'hi','ta','te','ml','kn','bn','pa','mr','ur','gu');
+  const arab = lang === 'ar' || one(cn, 'EG','SA','AE','KW','QA','BH','OM','JO','LB','SY','IQ','YE','PS','MA','DZ','TN','LY','SD');
+  const en = lang === 'en' || one(cn, 'US','GB','CA','AU','IE','NZ');
+  if (s.movie) {
+    if (indian) return 'bollywood'; if (arab) return 'arab';
+    if (lang === 'tr' || cn === 'TR') return 'turkish'; if (lang === 'ko' || cn === 'KR') return 'korean';
+    if (lang === 'ja' || cn === 'JP') return 'japanese'; if (one(lang, 'zh','cn') || one(cn, 'CN','HK','TW')) return 'chinese';
+    if (lang === 'it' || cn === 'IT') return 'italian'; if (lang === 'pt' || cn === 'BR') return 'brazil';
+    if (lang === 'th' || cn === 'TH') return 'thai'; if (one(lang, 'tl','fil') || cn === 'PH') return 'phil';
+    if (lang === 'fr' || cn === 'FR') return 'french'; if (lang === 'es' || one(cn, 'ES','MX','AR','CO','CL')) return 'spanish';
+    return en || !lang ? 'hollywood' : 'other';
+  }
+  if (arab) return 'arab'; if (lang === 'tr' || cn === 'TR') return 'turkish';
+  if (indian || one(lang, 'ko','ja','zh','cn','th','tl','fil','id','vi','ms') || one(cn, 'KR','JP','CN','HK','TW','TH','PH','ID','VN','MY')) return 'asian';
+  if (en || !lang || one(lang, 'fr','es','de','it','pt','ru','sv','da','no','nl','pl','el','he')) return 'foreign';
+  return 'other';
+}
+const SORTS = ['الأحدث إضافة', 'الأعلى تقييماً', 'الأحدث سنة', 'الاسم'];
+
 /* ═══════════ البيانات ═══════════ */
 async function loadData() {
   let j;
   try { j = await (await fetch(CONFIG.DATA_URL + '?t=' + Date.now(), { cache: 'no-store' })).json(); }
   catch (e) { try { j = await (await fetch('data.json?t=' + Date.now(), { cache: 'no-store' })).json(); } catch (e2) { throw new Error('تعذّر تحميل البيانات'); } }
   const series = (j.series || []).filter(s => !s.h).map(s => ({
-    id: s.id, t: s.t || '', p: s.p || '', b: s.b || '', o: s.o || '', r: parseFloat(s.r) || 0, y: s.y || '', g: s.g || [],
+    id: s.id, t: s.t || '', ot: s.ot || '', lg: (s.lg || '').toLowerCase(), cn: (s.cn || '').toUpperCase(), p: s.p || '', b: s.b || '', o: s.o || '', r: parseFloat(s.r) || 0, y: s.y || '', g: s.g || [],
     movie: s.k === 'movie', c: s.c, f: !!s.f, cast: s.cast || [],
     eps: (s.eps || []).filter(e => !e.h).map(e => ({ id: e.id, s: e.s || 1, n: e.n || 1, t: e.t || '', st: e.st || '', raw: e.e || e.u || '', sub: e.sub || [], ref: e.ref || '', q: (e.q || []).map(x => ({ h: +x.h || 0, raw: x.e || x.u || '' })).filter(x => x.h && x.raw).sort((a, b) => b.h - a.h) }))
       .sort((a, b) => a.s - b.s || a.n - b.n)
   })).filter(s => s.eps.length).sort((a, b) => b.id - a.id);
+  series.forEach(s => { s.grp = classify(s); });
   S.data = { settings: j.settings || {}, cats: j.categories || [], series };
   document.title = S.data.settings.name || 'سينمانا ماكس';
   $('#logo').textContent = S.data.settings.name || 'سينمانا ماكس';
@@ -248,9 +310,18 @@ function render() {
   renderTabs();
   const D = S.data, q = S.q.trim().toLowerCase();
   let list = D.series.filter(s => S.tab === 'movies' ? s.movie : S.tab === 'series' ? !s.movie : S.tab === 'favs' ? S.favs.includes(s.id) : true);
-  if (S.cat != null) list = list.filter(s => s.c === S.cat);
+  const grouped = S.tab === 'movies' || S.tab === 'series';
+  if (grouped) {
+    const base = list;
+    if (S.grp) list = list.filter(s => s.grp === S.grp);
+    if (S.cat != null) list = list.filter(s => s.c === S.cat);
+    if (S.fy) list = list.filter(s => s.y === S.fy);
+    if (S.fg) list = list.filter(s => s.g.includes(S.fg));
+    if (S.fs === 1) list = list.slice().sort((a, b) => b.r - a.r); else if (S.fs === 2) list = list.slice().sort((a, b) => String(b.y).localeCompare(String(a.y))); else if (S.fs === 3) list = list.slice().sort((a, b) => a.t.localeCompare(b.t, 'ar'));
+    S._base = base;
+  } else if (S.cat != null) list = list.filter(s => s.c === S.cat);
   if (q) list = list.filter(s => (s.t + ' ' + (s.ot || '')).toLowerCase().includes(q));
-  const chips = S.tab === 'favs' ? '' : `<div class="chips"><button class="chip ${S.cat == null ? 'on' : ''}" data-cat="">الكل</button>${D.cats.map(c => `<button class="chip ${S.cat === c.id ? 'on' : ''}" data-cat="${c.id}">${esc(c.name)}</button>`).join('')}</div>`;
+  const chips = S.tab === 'favs' ? '' : grouped ? groupBars() : `<div class="chips"><button class="chip ${S.cat == null ? 'on' : ''}" data-cat="">الكل</button>${D.cats.map(c => `<button class="chip ${S.cat === c.id ? 'on' : ''}" data-cat="${c.id}">${esc(c.name)}</button>`).join('')}</div>`;
   let html = chips;
   if (S.tab === 'home' && S.cat == null && !q) {
     const all = D.series;
@@ -263,6 +334,18 @@ function render() {
       D.cats.map(c => row(esc(c.name), all.filter(s => s.c === c.id))).join('');
   } else html += list.length ? `<div class="grid">${list.map(s => card(s)).join('')}</div>` : `<p class="empty">${S.tab === 'favs' ? 'لم تضف شيئاً للمفضلة بعد' : 'لا توجد نتائج'}</p>`;
   $('#app').innerHTML = html; startHero();
+}
+
+function groupBars() {
+  const D = S.data, base = S._base || [], movie = S.tab === 'movies';
+  const cnt = {}; base.forEach(s => cnt[s.grp] = 1);
+  const tabs = `<div class="gtabs"><button class="gtab ${S.grp == null ? 'on' : ''}" data-grp="">الكل</button>${(movie ? MOVIE_GROUPS : SERIES_GROUPS).filter(g => cnt[g[0]]).map(g => `<button class="gtab ${S.grp === g[0] ? 'on' : ''}" data-grp="${g[0]}">${g[1]}</button>`).join('')}</div>`;
+  const inGrp = base.filter(s => !S.grp || s.grp === S.grp);
+  const gen = [...new Set(inGrp.flatMap(s => s.g))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ar'));
+  const yrs = [...new Set(inGrp.map(s => s.y).filter(Boolean))].sort().reverse();
+  const sel = (key, label, opts, cur) => `<select class="${cur ? 'on' : ''}" data-flt="${key}" aria-label="${label}"><option value="">${label}</option>${opts.map(o => `<option value="${esc(o[0])}" ${String(cur) === String(o[0]) ? 'selected' : ''}>${esc(o[1])}</option>`).join('')}</select>`;
+  return tabs + `<div class="flt"><select class="${S.fs ? 'on' : ''}" data-flt="fs" aria-label="الترتيب">${SORTS.map((x, i) => `<option value="${i}" ${S.fs === i ? 'selected' : ''}>${x}</option>`).join('')}</select>` +
+    (D.cats.length ? sel('cat', 'القسم', D.cats.map(c => [c.id, c.name]), S.cat == null ? '' : S.cat) : '') + sel('fg', 'النوع', gen.map(x => [x, x]), S.fg || '') + sel('fy', 'السنة', yrs.map(x => [x, x]), S.fy || '') + '</div>';
 }
 
 /* ═══════════ التفاصيل ═══════════ */
@@ -457,9 +540,10 @@ function closePlayer() {
 
 /* ═══════════ الأحداث ═══════════ */
 document.addEventListener('click', e => {
-  const t = e.target.closest('[data-tab],[data-cat],[data-open],[data-play],[data-close],[data-fav],[data-season],[data-ep]'); if (!t) return;
+  const t = e.target.closest('[data-tab],[data-grp],[data-cat],[data-open],[data-play],[data-close],[data-fav],[data-season],[data-ep]'); if (!t) return;
   const d = t.dataset;
-  if (d.tab) { S.tab = d.tab; S.cat = null; render(); scrollTo(0, 0); }
+  if (d.tab) { S.tab = d.tab; S.cat = null; S.grp = null; S.fg = null; S.fy = null; S.fs = 0; render(); scrollTo(0, 0); }
+  else if (d.grp !== undefined && t.classList.contains('gtab')) { S.grp = d.grp || null; S.fg = null; S.fy = null; render(); }
   else if (d.cat !== undefined && t.classList.contains('chip') && !t.closest('#seasons')) { S.cat = d.cat === '' ? null : +d.cat; render(); }
   else if (d.season) { curSeason = +d.season; document.querySelectorAll('#seasons .chip').forEach(c => c.classList.toggle('on', c.dataset.season === d.season)); epList(); }
   else if (d.open) openDetail(+d.open);
@@ -468,8 +552,35 @@ document.addEventListener('click', e => {
   else if (d.close) $('#' + d.close).classList.remove('show');
   else if (d.fav) { const id = +d.fav, i = S.favs.indexOf(id); i < 0 ? S.favs.push(id) : S.favs.splice(i, 1); store.set('cmx_favs', S.favs); t.innerHTML = i < 0 ? ic('heart') + ' في المفضلة' : ic('heartO') + ' أضف للمفضلة'; render(); }
 });
+document.addEventListener('change', e => {
+  const k = e.target.dataset && e.target.dataset.flt; if (!k) return; const v = e.target.value;
+  if (k === 'fs') S.fs = +v || 0; else if (k === 'cat') S.cat = v === '' ? null : +v; else S[k] = v || null;
+  render();
+});
 let qt; $('#q').addEventListener('input', e => { clearTimeout(qt); qt = setTimeout(() => { S.q = e.target.value; render(); }, 200); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { if ($('#player').classList.contains('show')) closePlayer(); else $('#detail').classList.remove('show'); } });
+
+/* ═══════════ حماية الواجهة (ردع للمتصفح فقط — لا تغني عن حماية الخادم) ═══════════ */
+(function () {
+  const dw = document.createElement('div'); dw.id = 'devwarn'; dw.textContent = 'أغلق أدوات المطوّر للمتابعة'; document.body.appendChild(dw);
+  const ok = t => t && t.closest && t.closest('input,textarea');
+  document.addEventListener('contextmenu', e => { if (!ok(e.target)) e.preventDefault(); });
+  document.addEventListener('dragstart', e => e.preventDefault());
+  document.addEventListener('selectstart', e => { if (!ok(e.target)) e.preventDefault(); });
+  document.addEventListener('copy', e => { if (!ok(e.target)) e.preventDefault(); });
+  document.addEventListener('keydown', e => {
+    const k = (e.key || '').toLowerCase();
+    if (e.key === 'F12' || ((e.ctrlKey || e.metaKey) && e.shiftKey && 'ijc'.includes(k)) || ((e.ctrlKey || e.metaKey) && (k === 'u' || k === 's'))) { e.preventDefault(); e.stopPropagation(); }
+  }, true);
+  /* كشف نافذة أدوات المطوّر المفتوحة (على أجهزة سطح المكتب فقط، لتجنّب الإنذار الخاطئ في الجوال) */
+  const desk = !('ontouchstart' in window) && !/Android|iP(hone|ad|od)/i.test(navigator.userAgent);
+  let open = false;
+  if (desk) setInterval(() => {
+    const o = (outerWidth - innerWidth > 220) || (outerHeight - innerHeight > 260);
+    if (o && !open) { open = true; dw.style.display = 'flex'; const v = $('#v'); if (v) v.pause(); }
+    else if (!o && open) { open = false; dw.style.display = 'none'; }
+  }, 1200);
+})();
 
 loadData().then(() => { render(); loadViews(); }).catch(err => { $('#app').innerHTML = `<p class="empty">${esc(err.message)}<br><br><button class="btn" onclick="location.reload()">إعادة المحاولة</button></p>`; });
 </script>
