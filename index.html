@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#000000">
 <meta name="robots" content="noindex,nofollow,noarchive">
-<meta name="referrer" content="no-referrer">
+<meta name="referrer" content="origin">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src * data: blob:; media-src * data: blob:; connect-src *; worker-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
 <script>
 /* حماية: منع تضمين الموقع داخل إطار موقع آخر */
@@ -115,10 +115,23 @@ nav.bottom button .ic{width:24px;height:24px}nav.bottom button.on{background:#00
 .pb.on{background:var(--neon);color:#03121a}
 .ptitle{flex:1;min-width:0;font-weight:800;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
 .cmid{display:flex;align-items:center;justify-content:center;gap:clamp(8px,3vw,26px)}@media(max-width:420px){.cmid .pb{height:44px;min-width:44px}.cmid .big{height:64px;width:64px}}
-.cmid .pb{height:50px;min-width:50px;border-radius:25px}
-.cmid .big{height:72px;width:72px;border-radius:36px;background:#ffffff33}
-.cmid .big .ic{width:36px;height:36px}
-.skip{position:relative}.skip span{position:absolute;font-size:9px;font-weight:900;top:50%;left:50%;transform:translate(-50%,-38%)}
+.cmid{gap:18px}
+.cmid .pb{height:48px;width:48px;min-width:48px;padding:0;border-radius:50%;background:#ffffff33;border:1px solid #00ffff4d}
+.cmid .pb .ic{width:24px;height:24px}
+.cmid .pb.skip{height:56px;width:56px;min-width:56px}.cmid .pb.skip .ic{width:30px;height:30px}
+.cmid .big{height:76px;width:76px;min-width:76px}.cmid .big .ic{width:36px;height:36px}
+.skip{position:relative}.skip span{position:absolute;left:0;right:0;top:50%;text-align:center;transform:translateY(-38%);font-size:9px;font-weight:800;line-height:1}
+.prow .pb.ci{width:42px;padding:0;border-radius:50%}
+.prow .pb.ci .ic{width:20px;height:20px}
+.prow .ptl{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:0 4px;text-shadow:0 1px 8px #000;direction:rtl}
+.prow .ptl b{display:block;font-size:15px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prow .ptl small{display:block;color:#ffffffb8;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prow .ptl>div{min-width:0}
+#pspdt{direction:ltr;unicode-bidi:isolate}
+.punlock{position:absolute;z-index:6;left:24px;top:50%;transform:translateY(-50%);display:none;height:44px;padding:0 18px;gap:8px}
+.pwm{position:absolute;z-index:4;pointer-events:none;color:#fff;opacity:.13;font-weight:800;font-size:13px;letter-spacing:.5px;text-shadow:0 0 4px #000;white-space:nowrap;transition:top 1.5s,left 1.5s}
+@media(max-width:600px){.ctop .prow{flex-wrap:wrap}.ctop .prow .ptl{order:10;flex:0 0 100%;padding-top:2px}.prow #pqt{display:none}.prow #pq{padding:0;width:38px}}
+@media(max-width:480px){.prow .ptl b{font-size:13.5px}.prow .pb.ci{width:36px}.cmid .pb.skip{height:52px;width:52px}.cmid .big{height:68px;width:68px;min-width:68px}.cmid{gap:12px}}
 .cbot{display:flex;align-items:center;gap:10px;padding:0 calc(16px + env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));font-size:12.5px;font-variant-numeric:tabular-nums}
 .ctop{flex-direction:column;align-items:stretch;gap:8px}
 .prow{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}.prow .pb{white-space:nowrap;flex:none}
@@ -162,11 +175,16 @@ const CONFIG = {
   DATA_URL: 'https://raw.githubusercontent.com/Younes7o/cinemana-data/main/data.json', // نفس ملف التطبيق
   KEY: ['CMX-', 'change-', 'this-', 'secret-', '2026'].join(''),   // نفس عبارة التشفير في لوحة التحكم والتطبيق (Secrets.java)
   API_URL: 'https://plikunr.infinityfreeapp.com/cmxapi.php',   // رابط عدّاد المشاهدات
+  SECURE_URL: '',   // رابط الوسيط الآمن (Cloudflare Worker من cmx-secure-worker.js). إن وُضع: الرابط الحقيقي لا يصل للمتصفح أبداً ويمكن حذف KEY أعلاه
   PROXY_URL: ''   // اختياري: رابط Cloudflare Worker لمصادر تمنع التشغيل من المتصفح (انظر cors-proxy-worker.js)
 };
 
 const $ = (s, r = document) => r.querySelector(s);
 const ICONS = {
+  lock:'M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z',
+  unlock:'M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h1.9c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10z',
+  aspect:'M19 12h-2v3h-3v2h5v-5zM7 9h3V7H5v5h2V9zm14-6H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16.01H3V4.99h18v14.02z',
+  hd:'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 12H9.5v-2h-2v2H6V9h1.5v2.5h2V9H11v6zm7-1c0 .55-.45 1-1 1h-2.5V9H17c.55 0 1 .45 1 1v4zm-2-3.5v3h1v-3h-1z',
   home:'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z', movie:'M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z',
   tv:'M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z',
   heart:'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
@@ -193,7 +211,24 @@ const S = { data: null, tab: 'home', cat: null, grp: null, fg: null, fy: null, f
 /* ═══════════ فك تشفير الروابط AES-256-GCM ═══════════ */
 let keyP;
 const cryptoKey = () => keyP || (keyP = crypto.subtle.digest('SHA-256', new TextEncoder().encode(CONFIG.KEY)).then(h => crypto.subtle.importKey('raw', h, 'AES-GCM', false, ['decrypt'])));
+const DECOY = 'https://stream.mux.com/hnZSWV4oluS00d9lnwK5OPX02X3QsCphoZTFHIw015JmY8.m3u8';
+/** كشف أدوات السحب: متصفح آلي/بلا رأس، تضمين الصفحة داخل إطار، أو أدوات المطوّر مفتوحة → يُعطى رابط الطُعم بدل الحقيقي. */
+let SUS = false;
+function markSus() {
+  if (SUS) return; SUS = true;
+  try { const v = document.getElementById('v'); if (v && !v.paused) { if (hls) { hls.destroy(); hls = null; } const sec = v.currentTime; if (DECOY.endsWith('.m3u8') && window.Hls && Hls.isSupported()) { hls = new Hls(); hls.loadSource(DECOY); hls.attachMedia(v); } else v.src = DECOY; v.play().catch(() => {}); } } catch (e) {}
+}
+try {
+  if (navigator.webdriver || /HeadlessChrome|PhantomJS|Puppeteer|Playwright|Selenium|curl|python|wget|scrapy|httpclient/i.test(navigator.userAgent) || (window.top !== window.self) || (navigator.languages && !navigator.languages.length)) SUS = true;
+} catch (e) {}
 async function reveal(u) {
+  if (SUS) return u ? DECOY : '';
+  if (CONFIG.SECURE_URL && u && u.startsWith('enc:')) {
+    // الوسيط الآمن: نرسل الرمز المشفّر فقط، والرابط الحقيقي لا يُفك هنا أبداً
+    const tok = u.slice(4), B = CONFIG.SECURE_URL.replace(/\/+$/, '');
+    let hls = false; try { hls = (await (await fetch(B + '/k/' + tok)).json()).k === 'hls'; } catch (e) {}
+    return B + '/s/' + tok + (hls ? '.m3u8' : '.mp4');
+  }
   if (!u || !u.startsWith('enc:')) return u || '';
   let b = u.slice(4).replace(/-/g, '+').replace(/_/g, '/'); while (b.length % 4) b += '=';
   const raw = Uint8Array.from(atob(b), c => c.charCodeAt(0));
@@ -350,6 +385,7 @@ function groupBars() {
 
 /* ═══════════ التفاصيل ═══════════ */
 let curSeries, curSeason = null;
+let locked = false, ulT, wmT, resz = store.get('cmx_resz', 0);
 function openDetail(id) {
   const s = byId(id); if (!s) return; curSeries = s;
   const seasons = [...new Set(s.eps.map(e => e.s))]; curSeason = seasons[0];
@@ -394,13 +430,13 @@ async function play(sid, epId) {
   if (CONFIG.API_URL) { try { fetch(CONFIG.API_URL + '?i=1&a=view&d=' + (S.did || 'web-' + store.get('cmx_did', 'x')) + '&s=' + s.id); } catch (er) {} }
   const P = $('#player');
   const btn = (id, icn, extra = '') => `<button class="pb ${extra}" id="${id}">${ic(icn)}</button>`;
-  P.innerHTML = `<video id="v" playsinline webkit-playsinline preload="auto" controlsList="nodownload noremoteplayback" oncontextmenu="return false"></video>
-  <div class="spin" id="spin"></div><div class="ripple" id="rpl"></div>
+  P.innerHTML = `<video id="v" playsinline webkit-playsinline preload="auto" controlsList="nodownload noremoteplayback" disableRemotePlayback oncontextmenu="return false"></video>
+  <div class="spin" id="spin"></div><div class="ripple" id="rpl"></div><div class="pwm" id="pwm"></div><button class="pb punlock" id="punlock">${ic('unlock')} اضغط لفك القفل</button>
   <div class="ctl" id="ctl">
-    <div class="ctop"><div class="prow">${btn('pback', 'back')}<span class="sp"></span>
-      ${IOS || matchMedia('(pointer:coarse)').matches ? '' : btn('pmute', 'vol')}${btn('pcc', 'cc')}<button class="pb" id="pspd">${ic('speed')}<span id="pspdt">1×</span></button><button class="pb" id="pq">${ic('gear')}<span id="pqt">الجودة</span></button>${btn('ppip', 'pip')}${btn('pfs', 'fs')}</div>
-      <div class="pname"><img class="plogo" src="icon-192.png" alt=""><div><b>${esc(s.t)}</b>${s.movie ? '' : `<small>الموسم ${e.s} — الحلقة ${e.n}${e.t ? ' · ' + esc(e.t) : ''}</small>`}</div></div></div>
-    <div class="cmid">${btn('pprev', 'prev')}<button class="pb skip" id="prew">${ic('rew')}<span>10</span></button><button class="pb big" id="ppl">${ic('play')}</button><button class="pb skip" id="pfw" style="transform:scaleX(-1)">${ic('rew')}<span style="transform:translate(-50%,-38%) scaleX(-1)">10</span></button>${btn('pnext', 'next')}</div>
+    <div class="ctop"><div class="prow">${btn('pback', 'back', 'ci')}
+      <div class="ptl"><img class="plogo" src="icon-192.png" alt=""><div><b>${esc(s.t)}</b>${s.movie ? '' : `<small>الموسم ${e.s} — الحلقة ${e.n}${e.t ? ' · ' + esc(e.t) : ''}</small>`}</div></div>
+      ${IOS || matchMedia('(pointer:coarse)').matches ? '' : btn('pmute', 'vol', 'ci')}<button class="pb" id="pspd">${ic('speed')}<span id="pspdt">1×</span></button><button class="pb" id="pq">${ic('hd')}<span id="pqt">الجودة</span></button>${btn('ppip', 'pip', 'ci')}${btn('pcc', 'cc', 'ci')}${btn('plock', 'lock', 'ci')}${btn('prsz', 'aspect', 'ci')}${btn('pfs', 'fs', 'ci')}</div></div>
+    <div class="cmid">${btn('pprev', 'prev')}<button class="pb skip" id="prew">${ic('rew')}<span>10</span></button><button class="pb big" id="ppl">${ic('play')}</button><button class="pb skip" id="pfw" style="transform:scaleX(-1)">${ic('rew')}<span style="transform:translateY(-38%) scaleX(-1)">10</span></button>${btn('pnext', 'next')}</div>
     <div class="cbot"><span id="tpos">0:00</span><div class="sk"><div class="tr"></div><div class="bf" id="sbf"></div><div class="pg" id="spg"></div><input id="seek" type="range" min="0" max="1000" value="0" dir="ltr"></div><span id="tdur">0:00</span></div>
   </div>`;
   P.classList.add('show'); vid = $('#v'); vid.playbackRate = SPEEDS[speedI];
@@ -454,6 +490,7 @@ async function play(sid, epId) {
   const ripple = side => { const r = $('#rpl'); r.style.display = 'grid'; r.style[side === 'l' ? 'left' : 'right'] = '18%'; r.style[side === 'l' ? 'right' : 'left'] = 'auto'; r.textContent = (side === 'l' ? '-' : '+') + '10'; setTimeout(() => r.style.display = 'none', 450); };
   // لمسة واحدة: إظهار/إخفاء — لمستان: تقديم/ترجيع 10 ثوانٍ
   P.onclick = ev => {
+    if (locked) { if (ev.target.closest('#punlock')) return; $('#punlock').style.display = 'inline-flex'; clearTimeout(ulT); ulT = setTimeout(() => $('#punlock').style.display = 'none', 2500); return; }
     if (ev.target.closest('.pb,.cbot,.menu')) return;
     const now = Date.now(), x = ev.clientX / innerWidth;
     if (now - lastTap < 300) { if (x < .4) { jump(-10); ripple('l'); } else if (x > .6) { jump(10); ripple('r'); } else vid.paused ? vid.play() : vid.pause(); lastTap = 0; return; }
@@ -462,12 +499,20 @@ async function play(sid, epId) {
   P.onmousemove = show; show();
   if ($('#pmute')) $('#pmute').onclick = () => { vid.muted = !vid.muted; $('#pmute').innerHTML = ic(vid.muted ? 'mute' : 'vol'); show(); };
   P.tabIndex = 0; P.onkeydown = ev => {
-    const k = ev.key;
+    const k = ev.key; if (locked) return;
     if (k === ' ' || k === 'k') { ev.preventDefault(); vid.paused ? vid.play() : vid.pause(); }
     else if (k === 'ArrowLeft') jump(-10); else if (k === 'ArrowRight') jump(10);
     else if (k === 'ArrowUp') { vid.volume = Math.min(1, vid.volume + .1); show(); } else if (k === 'ArrowDown') { vid.volume = Math.max(0, vid.volume - .1); show(); }
     else if (k === 'm') $('#pmute') && $('#pmute').click(); else if (k === 'f') $('#pfs').click();
   }; P.focus();
+  locked = false; vid.style.objectFit = ['contain', 'cover', 'fill'][resz];
+  $('#plock').onclick = () => { locked = true; ctl.classList.add('hide'); clearTimeout(hideT); toast('الشاشة مقفلة'); };
+  $('#punlock').onclick = ev => { ev.stopPropagation(); locked = false; $('#punlock').style.display = 'none'; show(); };
+  $('#prsz').onclick = () => { resz = (resz + 1) % 3; store.set('cmx_resz', resz); vid.style.objectFit = ['contain', 'cover', 'fill'][resz]; toast(['ملائم', 'ملء', 'تكبير'][resz]); show(); };
+  /* علامة مائية خفيفة متحركة (تُصعّب تسريب التسجيلات وتُتتبَّع بمعرّف الجلسة) */
+  { const w = $('#pwm'); const sid = (S.sid || (S.sid = Math.random().toString(36).slice(2, 8).toUpperCase()));
+    w.textContent = (S.data.settings.name || 'سينمانا ماكس') + ' • ' + sid;
+    const mv = () => { w.style.top = (12 + Math.random() * 70) + '%'; w.style.left = (5 + Math.random() * 60) + '%'; }; mv(); wmT = setInterval(() => { if (!$('#pwm')) return clearInterval(wmT); mv(); }, 20000); }
   $('#pback').onclick = closePlayer; $('#ppl').onclick = () => { vid.paused ? vid.play() : vid.pause(); show(); };
   $('#prew').onclick = () => jump(-10); $('#pfw').onclick = () => jump(10);
   $('#pprev').onclick = () => step(-1); $('#pnext').onclick = () => step(1);
@@ -494,7 +539,7 @@ async function play(sid, epId) {
     P.appendChild(m); clearTimeout(hideT);
   };
   const isAr = l => /^(ar|ara)/i.test(l || '') || /عرب|arabic/i.test(l || '');
-  const useQ = (e.q || []).length >= 2 && !(hls && hls.levels.length > 1);
+  const useQ = (e.q || []).length >= 1 && !(hls && hls.levels.length > 1);
   if (useQ) $('#pqt').textContent = 'تلقائي · ' + e.q.length;
   const switchQ = async (raw, label) => {
     const t = vid.currentTime, wasPlaying = !vid.paused; let u2;
@@ -533,7 +578,7 @@ function saveProg() {
   S.prog[cur.s.id] = { ep: cur.e.id, pos: vid.currentTime, dur: vid.duration }; store.set('cmx_prog', S.prog);
 }
 function closePlayer() {
-  saveProg(); clearTimeout(hideT); if (hls) { hls.destroy(); hls = null; } if (vid) { vid.pause(); vid.removeAttribute('src'); vid.load(); }
+  saveProg(); clearTimeout(hideT); clearInterval(wmT); locked = false; if (hls) { hls.destroy(); hls = null; } if (vid) { vid.pause(); vid.removeAttribute('src'); vid.load(); }
   $('#player').classList.remove('show'); $('#player').innerHTML = ''; if (document.fullscreenElement) document.exitFullscreen();
   if ($('#detail').classList.contains('show') && curSeries && !curSeries.movie) epList(); else render();
 }
@@ -577,7 +622,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { if ($('#pl
   let open = false;
   if (desk) setInterval(() => {
     const o = (outerWidth - innerWidth > 220) || (outerHeight - innerHeight > 260);
-    if (o && !open) { open = true; dw.style.display = 'flex'; const v = $('#v'); if (v) v.pause(); }
+    if (o && !open) { open = true; markSus(); dw.style.display = 'flex'; }
     else if (!o && open) { open = false; dw.style.display = 'none'; }
   }, 1200);
 })();
