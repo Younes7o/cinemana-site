@@ -30,6 +30,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 header{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:#000000b3;border-bottom:1px solid var(--line)}
 .bar{display:flex;align-items:center;gap:10px;padding:10px 0}
 .brand{display:flex;align-items:center;gap:9px;flex:none}.lg{width:34px;height:34px;border-radius:10px;box-shadow:0 0 0 1px #ffffff22,0 0 14px #00e5ff44}
+.apkbtn{flex:none;background:var(--grad);color:#00262b;font-weight:800;font-size:13px;border-radius:20px;padding:10px 16px;white-space:nowrap;text-decoration:none}.apkbtn[hidden]{display:none}.apkbtn:hover{filter:brightness(1.1)}@media(max-width:560px){.apkbtn{padding:9px 11px;font-size:12px}.logo{display:none}}
 .logo{font-size:21px;font-weight:800;color:var(--neon);white-space:nowrap}
 .search{flex:1;min-width:0;display:flex;align-items:center;gap:8px;background:#ffffff14;border:1px solid var(--line);border-radius:22px;padding:0 14px;height:42px}
 .search input{flex:1;width:100%;background:none;border:0;outline:0;color:var(--txt);font:inherit;min-width:0}
@@ -159,6 +160,7 @@ nav.bottom button .ic{width:24px;height:24px}nav.bottom button.on{background:#00
 <body>
 <header><div class="wrap">
   <div class="bar"><div class="brand"><img class="lg" src="icon-192.png" alt=""><span class="logo" id="logo">سينمانا ماكس</span></div>
+    <a id="apk" class="apkbtn" target="_blank" rel="noopener" hidden>⬇ حمّل تطبيق الأندرويد</a>
     <label class="search"><svg class="ic" viewBox="0 0 24 24" style="color:var(--mut)"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><input id="q" placeholder="ابحث عن فيلم أو مسلسل…" autocomplete="off"></label></div>
   <div class="tabs" id="tabs"></div>
 </div></header>
@@ -216,7 +218,7 @@ const DECOY = 'https://stream.mux.com/hnZSWV4oluS00d9lnwK5OPX02X3QsCphoZTFHIw015
 let SUS = false;
 function markSus() {
   if (SUS) return; SUS = true;
-  try { const v = document.getElementById('v'); if (v && !v.paused) { if (hls) { hls.destroy(); hls = null; } const sec = v.currentTime; if (DECOY.endsWith('.m3u8') && window.Hls && Hls.isSupported()) { hls = new Hls(); hls.loadSource(DECOY); hls.attachMedia(v); } else v.src = DECOY; v.play().catch(() => {}); } } catch (e) {}
+  try { const v = document.getElementById('v'); if (v && !v.paused) { if (hls) { hls.destroy(); hls = null; } const sec = v.currentTime; if (DECOY.endsWith('.m3u8') && window.Hls && Hls.isSupported()) { hls = new Hls(); hls.loadSource(DECOY); hls.attachMedia(v); } else v.loop = true; v.src = DECOY; v.play().catch(() => {}); } } catch (e) {}
 }
 try {
   if (navigator.webdriver || /HeadlessChrome|PhantomJS|Puppeteer|Playwright|Selenium|curl|python|wget|scrapy|httpclient/i.test(navigator.userAgent) || (window.top !== window.self) || (navigator.languages && !navigator.languages.length)) SUS = true;
@@ -291,6 +293,8 @@ async function loadData() {
   series.forEach(s => { s.grp = classify(s); });
   S.data = { settings: j.settings || {}, cats: j.categories || [], series };
   document.title = S.data.settings.name || 'سينمانا ماكس';
+  { const st = S.data.settings, u = (st.apk || (st.update && st.update.u) || '').trim(), a = document.getElementById('apk');
+    if (a && /^https?:\/\//i.test(u)) { a.href = u; a.hidden = false; } }
   $('#logo').textContent = S.data.settings.name || 'سينمانا ماكس';
 }
 async function loadViews() {
@@ -440,6 +444,7 @@ async function play(sid, epId) {
     <div class="cbot"><span id="tpos">0:00</span><div class="sk"><div class="tr"></div><div class="bf" id="sbf"></div><div class="pg" id="spg"></div><input id="seek" type="range" min="0" max="1000" value="0" dir="ltr"></div><span id="tdur">0:00</span></div>
   </div>`;
   P.classList.add('show'); vid = $('#v'); vid.playbackRate = SPEEDS[speedI];
+  vid.loop = (url === DECOY);
   if (hls) { hls.destroy(); hls = null; }
   const isHls = url.split('?')[0].toLowerCase().endsWith('.m3u8');
   const nativeHls = !!vid.canPlayType('application/vnd.apple.mpegurl');

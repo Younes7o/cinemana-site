@@ -1,5 +1,5 @@
 // خدمة بسيطة: تخزّن واجهة الموقع للفتح السريع، أما البيانات والفيديو فتُجلب دائماً من الشبكة.
-const C = 'cmx-v6', FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png'];
+const C = 'cmx-v9', FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(C).then(c => c.addAll(FILES)).catch(() => {})); self.skipWaiting(); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(k => Promise.all(k.filter(x => x !== C).map(x => caches.delete(x)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {
